@@ -141,7 +141,8 @@ class RequestHandler(object):
 def add_static(app):
 	path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'static')
 	app.router.add_static('/static/',path)
-	logging.info('add static %s => %s' % ('/static/'),path)
+	#logging.info('add static %s => %s' % ('/static/'),path)  这一行当时少写了一个括号，所以报错
+	logging.info('add static %s => %s' % ('/static/', path))
 
 #注册一个URL处理函数
 def add_route(app,fn):
