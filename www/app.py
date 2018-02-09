@@ -72,14 +72,14 @@ async def response_factory(app,handler):
 		if isinstance(r,str):
 			if r.startswith('redirect:'):
 				return web.HTTPFound(r[9:]) # 即 返回 redirect 后面的字符串
-			resp = web.Response(body=r.encode('uft-8'))
-			resp.content_type = 'text/html;charset=uft-8'
+			resp = web.Response(body=r.encode('utf-8'))
+			resp.content_type = 'text/html;charset=utf-8'
 			return resp
 		if isinstance(r,dict):
 			template = r.get('__template__')
 			if template is None:
-				resp = web.Response(body=json.dumps(r,ensure_ascii=False,default=lambda o: o.__dict__).encode('uft-8'))
-				resp.content_type = 'application/json;charset=uft-8'
+				resp = web.Response(body=json.dumps(r, ensure_ascii=False, default=lambda o: o.__dict__).encode('utf-8'))
+				resp.content_type = 'application/json;charset=utf-8'
 				return resp
 			else:
 				resp = web.Response(body=app['__templating__'].get_template(template).render(**r).encode('utf-8'))
@@ -92,7 +92,7 @@ async def response_factory(app,handler):
 			if isinstance(t,int) and t >= 100 and t < 600:
 				return web.Response(t,str(m))
 		#default:
-		resp = web.Response(body=str(r).encode('uft-8'))
+		resp = web.Response(body=str(r).encode('utf-8'))
 		resp.content_type = 'text/plain;charset=utf-8'
 		return resp
 	return response
@@ -124,9 +124,9 @@ async def init(loop):
 	add_routes(app,'handlers')
 	add_static(app)
 	#app.router.add_route('GET','/',index)
-	srv = await loop.create_server(app.make_handler(),'127.0.0.1',9020)
+	srv = await loop.create_server(app.make_handler(),'127.0.0.1',9036)
 	#srv = yield from loop.create_server(app.make_handler(),'127.0.0.1',9001)
-	logging.info('server started at http://127.0.0.1:9020...')
+	logging.info('server started at http://127.0.0.1:9036...')
 	return srv
 
 loop = asyncio.get_event_loop()
