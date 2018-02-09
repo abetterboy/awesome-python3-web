@@ -54,7 +54,7 @@ async def execute(sql,args,autocommit=True):
 			async with conn.cursor(aiomysql.DictCursor) as cur:
 				await cur.execute(sql.replace('?','%s'),args)
 				affected = cur.rowcount
-			if not autocommit；
+			if not autocommit:
 				await conn.commit()
 		except BaseException as e:
 			if not autocommit:
@@ -111,17 +111,17 @@ class ModelMetaclass(type):
 		tableName = attrs.get('__table__',None) or name
 		logging.info('found model: %s (table:%s)' % (name,tableName))
 		mappings = dict()
-		field = []
-		primary_key = None
+		fields = []
+		primaryKey = None
 		for k,v in attrs.items():
 			if isinstance(v,Field):
 				logging.info(' found mapping:%s ==> %s' %(k,v))
 				mappings[k] = v
 				if v.primary_key:
 					#找到主键
-					if primary_key:
+					if primaryKey:
 						raise StandardError('Duplicate primary key for field:%s' % k)
-					primary_key = k
+					primaryKey = k
 				else:
 					fields.append(k)
 		if not primaryKey:
@@ -183,7 +183,7 @@ class Model(dict,metaclass=ModelMetaclass):
 		limit = kw.get('limit',None)
 		if limit is not None:
 			sql.append('limit')
-			if isinstance(limit,int)
+			if isinstance(limit,int):
 				sql.append('?')
 				args.append(limit)
 			elif isinstance(limit,tuple) and len(limit) == 2:
@@ -231,7 +231,7 @@ class Model(dict,metaclass=ModelMetaclass):
 			logging.warn('failed to update by primary key:affected rows: %s' % rows)
 
 	async def remove(self):
-		args = [self.getValue（self.__primary_key__]
+		args = [self.getValue(self.__primary_key__)]
 		rows = await execute(self.__delete__,args)
 		if rows != 1:
 			logging.warn('failed to remove by primary key:affected rows: %s' % rows)
