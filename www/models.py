@@ -7,7 +7,7 @@ from orm import Model, StringField, BooleanField, FloatField, TextField
 
 #创建一个uuid
 def next_id():
-	return '%015d000' % (int(time.time() * 1000), uuid.uuid4().hex)
+	return '%015d%s000' % (int(time.time() * 1000), uuid.uuid4().hex)
 
 class User(Model):
 	__table__ = 'users' #数据表的表名

@@ -18,6 +18,8 @@ from jinja2 import Environment, FileSystemLoader
 import orm
 from coreweb import add_routes, add_static
 
+from handlers import cookie2user, COOKIE_NAME
+
 def init_jinja2(app,**kw):
 	logging.info('init init_jinja2...')
 	options = dict(
@@ -46,6 +48,24 @@ async def logger_factory(app,handler):
 		#await asyncio.sleep(0.3)
 		return (await handler(request))
 	return logger
+
+
+@asyncio.coroutine
+def auth_factory(app,handler):
+	@asyncio.coroutine
+	def auth(request):
+		logging.info('check user: %s %s' % (request.method, request.path))
+		request.__user__ = None
+		cookie_str = request.cookies.get(COOKIE_NAME)
+		if cookie_str:
+			user = yield from cookie2user(cookie_str)
+			if user:
+				logging.info('set current user: %s' % user.email)
+				request.__user__ = user
+		if request.path.startswith('/manage') and (request.__user__ is None or not request.__user__.admin):
+			return web.HTTPFound('/signin')
+		return (yield from handler(request))
+	return auth
 
 async def data_factory(app,handler):
 	async def parse_data(request):
@@ -124,9 +144,9 @@ async def init(loop):
 	add_routes(app,'handlers')
 	add_static(app)
 	#app.router.add_route('GET','/',index)
-	srv = await loop.create_server(app.make_handler(),'127.0.0.1',9040)
-	#srv = yield from loop.create_server(app.make_handler(),'127.0.0.1',9001)
-	logging.info('server started at http://127.0.0.1:9040...')
+	srv = await loop.create_server(app.make_handler(),'127.0.0.1',9019)
+	#srv = yield from loop.create_server(app.make_handler(),'127.0.0.1',9000)
+	logging.info('server started at http://127.0.0.1:9019...')
 	return srv
 
 loop = asyncio.get_event_loop()
